@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import { isContentVisible } from '../../lib/content-visibility';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptyState from '../../components/EmptyState.astro';
-import { formatDate } from '../../lib/format-date';
 
 const [profile] = await getCollection('profile', ({ data }) => isContentVisible(data));
 ---
@@ -17,12 +16,8 @@ const [profile] = await getCollection('profile', ({ data }) => isContentVisible(
       <section aria-labelledby="contact-heading">
         <h2 id="contact-heading">联系方式</h2>
         {profile.data.contacts.length > 0 ? (
-          <ul>{profile.data.contacts.map((item) => <li>{item.href ? <a href={item.href}>{item.label}：{item.value}</a> : `${item.label}：${item.value}`}</li>)}</ul>
+          <ul>{profile.data.contacts.map((item) => <li>{item.href ? <a href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel={item.href.startsWith('http') ? 'noreferrer' : undefined}>{item.label}：{item.value}</a> : `${item.label}：${item.value}`}</li>)}</ul>
         ) : <EmptyState />}
-      </section>
-      <section aria-labelledby="resume-heading">
-        <h2 id="resume-heading">简历</h2>
-        {profile.data.resume ? <p><a href={profile.data.resume.path} download>下载 PDF 简历</a> · 更新于 {formatDate(profile.data.resume.updatedAt)}</p> : <EmptyState />}
       </section>
     </div>
   ) : <EmptyState title="个人资料尚未公开" />}

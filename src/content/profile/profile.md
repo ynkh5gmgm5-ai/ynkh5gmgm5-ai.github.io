@@ -8,7 +8,7 @@ contacts:
   - label: 邮箱
     value: jiqiw995@gmail.com
     href: mailto:jiqiw995@gmail.com
-resume:
-  path: /resume/lishang-resume.pdf
-  updatedAt: 2026-09-03
+  - label: GitHub
+    value: ynkh5gmgm5-ai
+    href: https://github.com/ynkh5gmgm5-ai
 ---
