@@ -1,0 +1,19 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { isContentVisible } from '../../../lib/content-visibility';
+import ListeningRecord from '../../../components/ListeningRecord.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('listening', ({ data }) => isContentVisible(data) && data.kind === 'in-ear');
+  return entries.map((entry) => ({ params: { id: entry.data.slug }, props: { entry } }));
+}
+
+interface Props { entry: CollectionEntry<'listening'> }
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={`${entry.data.brand} ${entry.data.model}`} description={entry.data.impression}>
+  <ListeningRecord entry={entry}><Content /></ListeningRecord>
+</BaseLayout>

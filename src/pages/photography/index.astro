@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content';
+import { isContentVisible } from '../../lib/content-visibility';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import PhotoGallery from '../../components/PhotoGallery.astro';
+
+const [selection] = await getCollection('photography', ({ data }) => isContentVisible(data));
+---
+
+<BaseLayout title="一些随手拍">
+  <header class="page-header" data-reveal>
+    <h1>一些随手拍</h1>
+  </header>
+  {selection ? (
+    <PhotoGallery photos={selection.data.photos} />
+  ) : <EmptyState />}
+</BaseLayout>

@@ -1,0 +1,38 @@
+[
+  {
+    "variant": "A",
+    "screenshot": "A-editorial-research-magazine.png",
+    "width": 1440,
+    "height": 4125,
+    "h1Lines": 2,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "variant": "B",
+    "screenshot": "B-dark-hifi-equipment.png",
+    "width": 1440,
+    "height": 4121,
+    "h1Lines": 2,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "variant": "C",
+    "screenshot": "C-warm-analog-photo-zine.png",
+    "width": 1440,
+    "height": 4259,
+    "h1Lines": 2,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "variant": "D",
+    "screenshot": "D-storm-city-observer.png",
+    "width": 1440,
+    "height": 4518,
+    "h1Lines": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  }
+]

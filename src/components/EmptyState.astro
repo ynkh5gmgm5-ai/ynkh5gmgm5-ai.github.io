@@ -1,0 +1,9 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = '尚无公开内容' } = Astro.props;
+---
+
+<p role="status">{title}</p>

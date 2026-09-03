@@ -1,0 +1,317 @@
+---
+import { getCollection } from 'astro:content';
+import { isContentVisible } from '../lib/content-visibility';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EmptyState from '../components/EmptyState.astro';
+import heroBackground from '../assets/hero-background.jpg';
+
+const [homepage] = await getCollection('homepage', ({ data }) => isContentVisible(data));
+const research = (await getCollection('research', ({ data }) => isContentVisible(data)))
+  .sort((a, b) => b.data.updatedAt.getTime() - a.data.updatedAt.getTime());
+const listening = await getCollection('listening', ({ data }) => isContentVisible(data));
+const fieldNotes = await getCollection('field-notes', ({ data }) => isContentVisible(data));
+const photography = await getCollection('photography', ({ data }) => isContentVisible(data));
+const [profile] = await getCollection('profile', ({ data }) => isContentVisible(data));
+const intro = homepage?.data.statement ?? '围绕产品、用户与渠道建立可追溯的研究，也为真实试听与摄影保留独立档案。';
+const introWords = intro.split(/(\s+)/).filter(Boolean);
+---
+
+<BaseLayout title="欢迎来到我的个人网站">
+  <section class="home-hero" aria-labelledby="cover-heading" style={`background-image: linear-gradient(rgba(8, 10, 9, 0.5), rgba(8, 10, 9, 0.5)), url("${heroBackground.src}");`}>
+    <p class="eyebrow" data-reveal>{homepage?.data.role ?? 'Hi-Fi 行业观察者与内容创作者'}</p>
+    <h1 id="cover-heading" data-reveal>欢迎来到我的个人网站</h1>
+    <p class="home-intro" data-scrub-text>
+      {introWords.map((word) => <span class="word">{word}</span>)}
+    </p>
+  </section>
+
+  <section class="home-chapter" aria-labelledby="focus-heading" data-reveal>
+    <div class="chapter-heading">
+      <h2 id="focus-heading">本期关注</h2>
+      <p>研究先给出结论，再展开证据、范围与待验证部分。</p>
+    </div>
+    {homepage ? (
+      <article class="focus-panel">
+        <h3>{homepage.data.currentFocus.title}</h3>
+        <p>{homepage.data.currentFocus.summary}</p>
+      </article>
+    ) : research[0] ? (
+      <a class="focus-panel" href={`/research/${research[0].data.slug}/`}>
+        <span>{research[0].data.researchDate}</span>
+        <h3>{research[0].data.title}</h3>
+        <p>{research[0].data.summary}</p>
+      </a>
+    ) : <EmptyState />}
+  </section>
+
+  <section class="home-chapter" aria-labelledby="listening-heading">
+    <div class="chapter-heading" data-reveal>
+      <h2 id="listening-heading">试听档案</h2>
+      <p>只记录作者的主观体验，不以分数或排行替代聆听条件。</p>
+    </div>
+    <nav class="listening-accordion" aria-label="试听档案分类">
+      <a href="/listening/over-ear/"><strong>大耳</strong><span>头戴式耳机的照片、搭配与主观观察</span></a>
+      <a href="/listening/in-ear/"><strong>入耳</strong><span>入耳式耳机的使用情境与最终印象</span></a>
+      <a href="/listening/field-notes/"><strong>闪击探店与展会蹭听</strong><span>门店、展会与临场试听笔记</span></a>
+    </nav>
+    {listening.length + fieldNotes.length === 0 && <EmptyState />}
+  </section>
+
+  <section class="home-chapter" aria-labelledby="research-heading">
+    <div class="chapter-heading" data-reveal>
+      <h2 id="research-heading">关于hifi市场个人的一些看法</h2>
+      <p>市场与竞争、产品与用户、渠道与增长，三条线索彼此交叉。</p>
+    </div>
+    {research.length === 0 ? <EmptyState /> : (
+      <div class="home-research-grid">
+        {research.slice(0, 3).map((entry) => (
+          <a href={`/research/${entry.data.slug}/`} data-stack>
+            <span>{entry.data.researchDate}</span>
+            <h3>{entry.data.title}</h3>
+            <p>{entry.data.summary}</p>
+          </a>
+        ))}
+      </div>
+    )}
+    <p class="section-action"><a class="button" href="/research/">浏览全部研究</a></p>
+  </section>
+
+  <section class="home-chapter home-bento" aria-label="摄影与关于">
+    <div class="photo-panel" data-reveal>
+      <h2 id="photography-heading">一些随手拍</h2>
+      {photography.length === 0 ? <EmptyState /> : <a class="button" href="/photography/">查看摄影作品</a>}
+    </div>
+    <div class="about-panel" data-reveal>
+      <h2 id="about-heading">认识我</h2>
+      {profile ? <p>{profile.data.biography}</p> : <EmptyState title="个人资料尚未公开" />}
+      <a class="button button--solid" href="/about/">前往关于页</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-hero {
+    display: grid;
+    justify-items: center;
+    min-height: min(52rem, 78vh);
+    align-content: center;
+    text-align: center;
+    background-position: center 30%;
+    background-size: cover;
+    color: #fff;
+  }
+
+  .home-hero h1 {
+    max-width: 72rem;
+    color: #fff;
+  }
+
+  .home-intro {
+    max-width: 52rem;
+    margin: 2rem auto 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: clamp(1.15rem, 2vw, 1.7rem);
+    line-height: 1.55;
+  }
+
+  .home-chapter {
+    padding: clamp(7rem, 14vw, 12rem) 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .chapter-heading {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 3rem;
+    align-items: end;
+    margin-bottom: clamp(3rem, 7vw, 6rem);
+  }
+
+  .chapter-heading h2,
+  .chapter-heading p {
+    margin: 0;
+  }
+
+  .chapter-heading p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .focus-panel {
+    display: grid;
+    max-width: 68rem;
+    gap: 1rem;
+    margin-left: auto;
+    padding: clamp(2rem, 6vw, 5rem);
+    overflow: hidden;
+    border-radius: 2rem;
+    color: #fff;
+    background: radial-gradient(circle at 100% 0, rgba(216, 255, 69, 0.28), transparent 22rem), var(--deep);
+    text-decoration: none;
+  }
+
+  .focus-panel h3,
+  .focus-panel p {
+    max-width: 48rem;
+    margin: 0;
+  }
+
+  .focus-panel p,
+  .focus-panel span {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .listening-accordion {
+    display: flex;
+    min-height: 26rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 2rem;
+  }
+
+  .listening-accordion a {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1.5rem;
+    border-right: 1px solid var(--line);
+    background: rgba(251, 250, 245, 0.68);
+    text-decoration: none;
+    transition: flex 500ms cubic-bezier(.2,.8,.2,1), color 220ms ease, background 220ms ease;
+  }
+
+  .listening-accordion a:last-child {
+    border-right: 0;
+  }
+
+  .listening-accordion a:hover {
+    flex: 1.6 1 0;
+    color: #fff;
+    background: var(--deep);
+  }
+
+  .listening-accordion strong {
+    max-width: 16rem;
+    font-size: clamp(1.6rem, 3.4vw, 3.4rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .listening-accordion span {
+    max-width: 18rem;
+    color: var(--muted);
+  }
+
+  .listening-accordion a:hover span {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .home-research-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: 1rem;
+  }
+
+  .home-research-grid a {
+    grid-column: span 4;
+    min-height: 23rem;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 2rem;
+    background: var(--paper-bright);
+    text-decoration: none;
+    transition: transform 500ms cubic-bezier(.2,.8,.2,1), background 220ms ease;
+  }
+
+  .home-research-grid a:hover {
+    transform: translateY(-6px);
+    background: #fff;
+  }
+
+  .home-research-grid h3 {
+    margin: 5rem 0 1.25rem;
+  }
+
+  .home-research-grid p,
+  .home-research-grid span {
+    color: var(--muted);
+  }
+
+  .section-action {
+    margin: 2rem 0 0;
+    text-align: right;
+  }
+
+  .home-bento {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto;
+    grid-auto-flow: dense;
+    gap: 1rem;
+  }
+
+  .home-bento > div {
+    min-height: 28rem;
+    padding: clamp(1.5rem, 5vw, 4rem);
+    border-radius: 2rem;
+  }
+
+  .photo-panel {
+    grid-column: span 7;
+    background: linear-gradient(145deg, #d9d7ce, #f7f6ef);
+  }
+
+  .about-panel {
+    grid-column: span 5;
+    color: #fff;
+    background: var(--deep);
+  }
+
+  .about-panel p,
+  .about-panel [role="status"] {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .about-panel .button--solid {
+    color: var(--ink);
+    background: var(--acid);
+  }
+
+  @media (max-width: 48rem) {
+    .home-hero {
+      min-height: 70vh;
+    }
+
+    .chapter-heading,
+    .home-research-grid,
+    .home-bento {
+      grid-template-columns: 1fr;
+    }
+
+    .listening-accordion {
+      min-height: 0;
+      flex-direction: column;
+    }
+
+    .listening-accordion a {
+      min-height: 12rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .home-research-grid a,
+    .photo-panel,
+    .about-panel {
+      grid-column: auto;
+    }
+
+    .home-research-grid a {
+      min-height: 18rem;
+    }
+  }
+</style>

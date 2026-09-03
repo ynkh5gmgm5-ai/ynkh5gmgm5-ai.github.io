@@ -1,0 +1,113 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../lib/format-date';
+
+interface Props {
+  entry: CollectionEntry<'listening'>;
+}
+
+const { entry } = Astro.props;
+const contextItems = entry.data.context
+  ? [
+      ['地点', entry.data.context.location],
+      ['播放器', entry.data.context.player],
+      ['耳放', entry.data.context.amplifier],
+      ['线材', entry.data.context.cable],
+      ['时长', entry.data.context.duration],
+    ].filter((item): item is [string, string] => Boolean(item[1]))
+  : [];
+
+---
+
+<article>
+  <header>
+    <p>{entry.data.brand}</p>
+    <h1>{entry.data.model}</h1>
+    <p>{entry.data.impression}</p>
+  </header>
+
+  <section aria-labelledby="basic-heading">
+    <h2 id="basic-heading">基本信息</h2>
+    <dl>
+      <div><dt>品牌</dt><dd>{entry.data.brand}</dd></div>
+      <div><dt>型号</dt><dd>{entry.data.model}</dd></div>
+      <div><dt>日期</dt><dd>{formatDate(entry.data.date)}</dd></div>
+      {contextItems.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
+    </dl>
+  </section>
+
+  <section class="story" aria-labelledby="story-heading">
+    <h2 id="story-heading">听音记录</h2>
+    <Image class="story-image" src={entry.data.cover} alt={entry.data.coverAlt} widths={[720, 1200, 1600]} sizes="(max-width: 48rem) 100vw, 40rem" loading="eager" />
+    <div class="story-copy"><slot /></div>
+  </section>
+</article>
+
+<style>
+  article > header {
+    display: grid;
+    gap: 1rem;
+    padding-bottom: clamp(3rem, 8vw, 7rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  article > header p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  article > header h1 {
+    margin: 0;
+  }
+
+  article > section {
+    padding: clamp(3rem, 8vw, 7rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  article > section > h2 {
+    margin: 0 0 2rem;
+  }
+
+  .story::after {
+    display: block;
+    clear: both;
+    content: '';
+  }
+
+  .story-image {
+    float: left;
+    width: min(32%, 24rem);
+    height: auto;
+    margin: 0 2.5rem 1.25rem 0;
+    shape-margin: 1.25rem;
+  }
+
+  .story-copy {
+    max-width: none;
+    font-size: 1.06rem;
+    line-height: 1.9;
+  }
+
+  .story-copy :global(p) {
+    margin: 0 0 1.5rem;
+  }
+
+  dt {
+    font-weight: 700;
+  }
+
+  dd {
+    margin: 0 0 1rem;
+  }
+
+  @media (max-width: 48rem) {
+    .story-image {
+      float: none;
+      display: block;
+      width: 100%;
+      margin: 0 0 1.5rem;
+    }
+  }
+</style>

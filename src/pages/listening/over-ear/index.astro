@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+import { isContentVisible } from '../../../lib/content-visibility';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import EmptyState from '../../../components/EmptyState.astro';
+import EntryList from '../../../components/EntryList.astro';
+import { formatDate } from '../../../lib/format-date';
+
+const entries = (await getCollection('listening', ({ data }) => isContentVisible(data) && data.kind === 'over-ear'))
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured) || b.data.updatedAt.getTime() - a.data.updatedAt.getTime())
+  .map((entry) => ({
+    href: `/listening/over-ear/${entry.data.slug}/`,
+    title: `${entry.data.brand} ${entry.data.model}`,
+    summary: entry.data.impression,
+    meta: formatDate(entry.data.date),
+  }));
+---
+
+<BaseLayout title="大耳试听档案">
+  <header class="page-header"><h1>大耳</h1><p>头戴式耳机的真实照片、试听条件与主观观察。</p></header>
+  {entries.length === 0 ? <EmptyState /> : <EntryList entries={entries} />}
+</BaseLayout>

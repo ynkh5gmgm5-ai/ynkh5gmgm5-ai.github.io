@@ -1,0 +1,163 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Photo {
+  image: ImageMetadata;
+  alt: string;
+}
+
+interface Props {
+  photos: Photo[];
+}
+
+const { photos } = Astro.props;
+---
+
+<div class="photo-gallery" data-photo-gallery>
+  {photos.map((photo, index) => (
+    <button type="button" data-photo-open={index} aria-label={`查看大图：${photo.alt}`}>
+      <Image src={photo.image} alt={photo.alt} widths={[720, 1200, 1600]} sizes="(max-width: 48rem) 100vw, 50vw" loading="lazy" />
+    </button>
+  ))}
+  <dialog aria-label="摄影作品大图" data-photo-dialog>
+    <button class="photo-close" type="button" data-photo-close>关闭</button>
+    <img alt="" data-photo-full />
+    <p data-photo-caption></p>
+  </dialog>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-photo-gallery]').forEach((gallery) => {
+    const dialog = gallery.querySelector<HTMLDialogElement>('[data-photo-dialog]');
+    const fullImage = gallery.querySelector<HTMLImageElement>('[data-photo-full]');
+    const caption = gallery.querySelector<HTMLElement>('[data-photo-caption]');
+    if (!dialog || !fullImage || !caption) return;
+
+    gallery.querySelectorAll<HTMLButtonElement>('[data-photo-open]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const preview = button.querySelector('img');
+        if (!preview) return;
+        fullImage.src = preview.currentSrc || preview.src;
+        fullImage.alt = preview.alt;
+        caption.textContent = preview.alt;
+        dialog.showModal();
+      });
+    });
+
+    gallery.querySelector<HTMLElement>('[data-photo-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+</script>
+
+<style>
+  .photo-gallery {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: 1rem;
+  }
+
+  .photo-gallery > button {
+    grid-column: span 4;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1.5rem;
+    background: #d9d7ce;
+    cursor: zoom-in;
+  }
+
+  .photo-gallery > button:nth-child(3n + 1) {
+    grid-column: span 4;
+  }
+
+  .photo-gallery > button:first-child {
+    grid-column: span 7;
+  }
+
+  .photo-gallery > button:nth-child(2) {
+    grid-column: span 5;
+  }
+
+  .photo-gallery > button:only-child,
+  .photo-gallery > button:last-child:nth-child(3n) {
+    grid-column: span 12;
+  }
+
+  .photo-gallery > button:last-child:nth-child(3n + 1) {
+    grid-column: span 8;
+  }
+
+  .photo-gallery > button:only-child {
+    grid-column: span 12;
+  }
+
+  .photo-gallery :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 24rem;
+    object-fit: cover;
+    transition: transform 700ms ease;
+  }
+
+  .photo-gallery > button:hover :global(img) {
+    transform: scale(1.05);
+  }
+
+  dialog {
+    width: min(92vw, 90rem);
+    max-width: none;
+    padding: 1rem;
+    border: 0;
+    border-radius: 1.5rem;
+    color: #fff;
+    background: #101412;
+  }
+
+  dialog::backdrop {
+    background: rgba(8, 10, 9, 0.86);
+    backdrop-filter: blur(8px);
+  }
+
+  dialog :global(img) {
+    width: 100%;
+    max-height: 78vh;
+    min-height: 0;
+    object-fit: contain;
+  }
+
+  .photo-close {
+    display: block;
+    margin: 0 0 0.75rem auto;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    color: #fff;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  dialog p {
+    margin: 0.75rem 0 0;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  @media (max-width: 48rem) {
+    .photo-gallery {
+      grid-template-columns: 1fr;
+    }
+
+    .photo-gallery > button,
+    .photo-gallery > button:nth-child(n) {
+      grid-column: auto;
+    }
+
+    .photo-gallery :global(img) {
+      min-height: 18rem;
+    }
+  }
+</style>

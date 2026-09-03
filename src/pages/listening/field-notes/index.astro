@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import { isContentVisible } from '../../../lib/content-visibility';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import EmptyState from '../../../components/EmptyState.astro';
+import EntryList from '../../../components/EntryList.astro';
+import { formatDate } from '../../../lib/format-date';
+
+const kindLabels = { 'store-visit': '探店', exhibition: '展会' } as const;
+const entries = (await getCollection('field-notes', ({ data }) => isContentVisible(data)))
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured) || b.data.updatedAt.getTime() - a.data.updatedAt.getTime())
+  .map((entry) => ({
+    href: `/listening/field-notes/${entry.data.slug}/`,
+    title: entry.data.title,
+    summary: entry.data.overallImpression,
+    meta: `${kindLabels[entry.data.kind]} · ${entry.data.city} · ${formatDate(entry.data.date)}`,
+  }));
+---
+
+<BaseLayout title="闪击探店与展会蹭听">
+  <header class="page-header"><h1>闪击探店与展会蹭听</h1><p>门店和展会中的临场照片、器材与观察记录。</p></header>
+  {entries.length === 0 ? <EmptyState /> : <EntryList entries={entries} />}
+</BaseLayout>

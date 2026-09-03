@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import { isContentVisible } from '../../lib/content-visibility';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import ResearchExplorer from '../../components/ResearchExplorer';
+
+const topicLabels = {
+  'market-competition': '市场与竞争',
+  'product-user': '产品与用户',
+  'channel-growth': '渠道与增长',
+} as const;
+
+const research = (await getCollection('research', ({ data }) => isContentVisible(data)))
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured) || b.data.updatedAt.getTime() - a.data.updatedAt.getTime());
+
+const entries = research.map((entry) => ({
+  href: `/research/${entry.data.slug}/`,
+  title: entry.data.title,
+  summary: entry.data.summary,
+  topic: entry.data.topic,
+  topicLabel: topicLabels[entry.data.topic],
+  researchDate: entry.data.researchDate,
+  preview: entry.data.preview && !entry.data.publish,
+}));
+---
+
+<BaseLayout title="关于hifi市场个人的一些看法">
+  <header class="page-header" data-reveal>
+    <h1>关于hifi市场个人的一些看法</h1>
+  </header>
+  {entries.length === 0 ? <EmptyState /> : <ResearchExplorer entries={entries} client:load />}
+</BaseLayout>

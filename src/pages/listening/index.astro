@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="试听档案">
+  <header class="page-header" data-reveal>
+    <h1>试听档案</h1>
+    <p>只记录作者的主观体验，不使用评分、星级或排行。</p>
+  </header>
+  <nav class="archive-doors" aria-label="试听档案分类">
+    <a href="/listening/over-ear/" data-reveal><strong>大耳</strong><span>头戴式耳机</span></a>
+    <a href="/listening/in-ear/" data-reveal><strong>入耳</strong><span>入耳式耳机</span></a>
+    <a href="/listening/field-notes/" data-reveal><strong>闪击探店与展会蹭听</strong><span>门店与展会现场</span></a>
+  </nav>
+</BaseLayout>
+
+<style>
+  .archive-doors {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: 1rem;
+  }
+
+  .archive-doors a {
+    display: flex;
+    grid-column: span 4;
+    min-height: 28rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 2rem;
+    background: var(--paper-bright);
+    text-decoration: none;
+    transition: transform 500ms ease, color 220ms ease, background 220ms ease;
+  }
+
+  .archive-doors a:hover {
+    transform: translateY(-6px);
+    color: #fff;
+    background: var(--deep);
+  }
+
+  .archive-doors strong {
+    font-size: clamp(2rem, 4vw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+  }
+
+  .archive-doors span {
+    color: var(--muted);
+  }
+
+  .archive-doors a:hover span {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  @media (max-width: 48rem) {
+    .archive-doors {
+      grid-template-columns: 1fr;
+    }
+
+    .archive-doors a {
+      grid-column: auto;
+      min-height: 15rem;
+    }
+  }
+</style>
